@@ -14,6 +14,7 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -43,6 +44,9 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
         }
         else if(authException instanceof InsufficientAuthenticationException) {
             jsonString = JSON.toJSONString(Result.error(ResultEnum.USER_NEED_AUTH.getCode(), ResultEnum.USER_NEED_AUTH.getMsg()));
+        }
+        else if(authException instanceof RememberMeAuthenticationException) {
+            jsonString = JSON.toJSONString(Result.error(ResultEnum.USER_HAS_LOGGED.getCode(), ResultEnum.USER_HAS_LOGGED.getMsg()));
         }
         outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
         outputStream.flush();

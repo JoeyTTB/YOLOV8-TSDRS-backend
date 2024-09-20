@@ -11,6 +11,7 @@ import guat.tsdrs.service.UserService;
 import guat.tsdrs.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -19,9 +20,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -35,6 +38,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     public String login(UserLoginDTO userLoginDTO) {
@@ -53,6 +59,10 @@ public class UserServiceImpl implements UserService {
             }
         }
         LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
+        if(redisTemplate.opsForValue().get(loginUser.getUsername()) != null) {
+            throw new RememberMeAuthenticationException(ResultEnum.USER_HAS_LOGGED.getMsg());
+        }
+        redisTemplate.opsForValue().set(loginUser.getUsername(), ResultEnum.USER_HAS_LOGGED.getCode(), 1, TimeUnit.HOURS);
         String loginUserString = JSON.toJSONString(loginUser);
         return JwtUtils.createJwt(loginUserString);
     }
