@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String uri = request.getRequestURI();
             System.out.println("request uri: " + uri);
-            if(!uri.equals("/login")) {
+            if(!(uri.equals("/login") || uri.equals("/register") || uri.equals("/logout"))) {
                 this.validateToken(request);
             }
         } catch (CustomAuthenticationException e) {

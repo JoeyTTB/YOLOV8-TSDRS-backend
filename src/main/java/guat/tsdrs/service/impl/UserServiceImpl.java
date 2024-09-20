@@ -2,6 +2,9 @@ package guat.tsdrs.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import guat.tsdrs.common.ResultEnum;
+import guat.tsdrs.mapper.UserMapper;
+import guat.tsdrs.pojo.User;
+import guat.tsdrs.pojo.dto.RegisterDTO;
 import guat.tsdrs.pojo.dto.UserLoginDTO;
 import guat.tsdrs.pojo.vo.LoginUser;
 import guat.tsdrs.service.UserService;
@@ -15,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -25,6 +29,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public String login(UserLoginDTO userLoginDTO) {
@@ -45,5 +55,20 @@ public class UserServiceImpl implements UserService {
         LoginUser loginUser = (LoginUser) authenticate.getPrincipal();
         String loginUserString = JSON.toJSONString(loginUser);
         return JwtUtils.createJwt(loginUserString);
+    }
+
+    @Override
+    public Integer register(RegisterDTO registerDTO) {
+        if(!registerDTO.getPassword().equals(registerDTO.getRePassword())) {
+            return ResultEnum.INCORRECT_PASSWORD_CHECK.getCode();
+        }
+        User user = userMapper.getUserByName(registerDTO.getUsername());
+        if(Objects.isNull(user)) {
+            user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()));
+            userMapper.insertUser(user);
+            return ResultEnum.REGISTER_SUCCESS.getCode();
+        } else {
+            return ResultEnum.USER_HAD_EXIST.getCode();
+        }
     }
 }
