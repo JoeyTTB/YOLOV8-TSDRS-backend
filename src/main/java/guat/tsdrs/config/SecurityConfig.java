@@ -67,7 +67,7 @@ public class SecurityConfig {
         //关闭会话
         http.sessionManagement(configuration -> configuration.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(anonymousAuthenticationHandler));
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("/login", "/register")
+        http.authorizeHttpRequests(auth -> auth.requestMatchers("account/login", "account/register")
                 .permitAll()
                 .anyRequest()
                 .authenticated());
