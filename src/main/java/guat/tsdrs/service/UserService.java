@@ -8,4 +8,6 @@ public interface UserService {
     public String login(UserLoginDTO userLoginDTO);
 
     public Integer register(RegisterDTO registerDTO);
+
+    public void logout(String username);
 }

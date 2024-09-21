@@ -5,11 +5,9 @@ import guat.tsdrs.pojo.Result;
 import guat.tsdrs.pojo.dto.RegisterDTO;
 import guat.tsdrs.pojo.dto.UserLoginDTO;
 import guat.tsdrs.service.UserService;
+import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/account")
@@ -34,6 +32,12 @@ public class UserController {
         } else {
             return Result.error(ResultEnum.USER_HAD_EXIST.getCode(), ResultEnum.USER_HAD_EXIST.getMsg());
         }
+    }
+
+    @GetMapping("/logout/{username}")
+    public Result logout(@PathVariable String username) {
+        userService.logout(username);
+        return Result.success(ResultEnum.USER_LOGOUT_SUCCESS.getCode(), ResultEnum.USER_LOGOUT_SUCCESS.getMsg());
     }
 
 }

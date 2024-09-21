@@ -81,4 +81,9 @@ public class UserServiceImpl implements UserService {
             return ResultEnum.USER_HAD_EXIST.getCode();
         }
     }
+
+    @Override
+    public void logout(String username) {
+        redisTemplate.delete(username);
+    }
 }
