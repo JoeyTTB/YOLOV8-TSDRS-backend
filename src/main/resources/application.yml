@@ -11,7 +11,10 @@ spring:
       database: 0
       port: 6379
       host: localhost
-      password: 1234
+      password: 1234 
+  servlet:
+    multipart:
+      max-file-size: 2MB
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

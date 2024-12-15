@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void validateToken(HttpServletRequest request) throws CustomAuthenticationException {
         String token = request.getHeader("Authorization");
+        log.info("Authorization token: " + token);
 /*        if(!StringUtils.hasLength(token)) {
             log.info("令牌为空");
             response.setContentType("application/json;charset=utf-8");
@@ -72,9 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             log.info("已登出，需要重新登录");
             throw new InsufficientAuthenticationException(null);
         }
-        if(loginUser != null) {
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loginUser, null, loginUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

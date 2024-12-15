@@ -1,10 +1,16 @@
 package guat.tsdrs.controller;
 
+import com.alibaba.fastjson.JSON;
 import guat.tsdrs.common.ResultEnum;
 import guat.tsdrs.pojo.Result;
 import guat.tsdrs.pojo.dto.RegisterDTO;
+import guat.tsdrs.pojo.dto.UserCheckLoginDTO;
 import guat.tsdrs.pojo.dto.UserLoginDTO;
+import guat.tsdrs.pojo.vo.LoginUser;
 import guat.tsdrs.service.UserService;
+import guat.tsdrs.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +44,24 @@ public class UserController {
     public Result logout(@PathVariable String username) {
         userService.logout(username);
         return Result.success(ResultEnum.USER_LOGOUT_SUCCESS.getCode(), ResultEnum.USER_LOGOUT_SUCCESS.getMsg());
+    }
+
+    @GetMapping("/check/{username}")
+    public Result check(@PathVariable String username, HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        System.out.println("token: " + token);
+        try {
+            Claims claims = JwtUtils.parseJwt(token);
+            String loginUserString = claims.getSubject();
+            LoginUser loginUser = JSON.parseObject(loginUserString, LoginUser.class);
+            System.out.println("LoginUser username:" + loginUser.getUsername() + " username:" + username);
+            if(!loginUser.getUsername().equals(username)) {
+                throw new RuntimeException();
+            }
+            return Result.success(ResultEnum.LOGIN_SUCCESS.getCode(), ResultEnum.LOGIN_SUCCESS.getMsg());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

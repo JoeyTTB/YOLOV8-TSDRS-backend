@@ -48,6 +48,9 @@ public class AnonymousAuthenticationHandler implements AuthenticationEntryPoint 
         else if(authException instanceof RememberMeAuthenticationException) {
             jsonString = JSON.toJSONString(Result.error(ResultEnum.USER_HAS_LOGGED.getCode(), ResultEnum.USER_HAS_LOGGED.getMsg()));
         }
+        else {
+            jsonString = JSON.toJSONString(Result.error(ResultEnum.ILLEGAL_OPERATION.getCode(), ResultEnum.ILLEGAL_OPERATION.getMsg()));
+        }
         outputStream.write(jsonString.getBytes(StandardCharsets.UTF_8));
         outputStream.flush();
         outputStream.close();
