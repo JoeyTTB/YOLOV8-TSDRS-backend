@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/account")
@@ -64,4 +65,21 @@ public class UserController {
         }
     }
 
+    @GetMapping("/regdate/{username}")
+    public Result regdate(@PathVariable String username) {
+        String regdate = userService.getRegDate(username);
+        return Result.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), regdate);
+    }
+
+    @PostMapping("/upload/{username}")
+    public Result upload(@PathVariable String username, MultipartFile file) {
+        String url = userService.uploadAvatar(username, file);
+        return Result.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), url);
+    }
+
+    @GetMapping("/avatar/{username}")
+    public Result getAvatar(@PathVariable String username) {
+        String url = userService.getAvatar(username);
+        return Result.success(ResultEnum.SUCCESS.getCode(), ResultEnum.SUCCESS.getMsg(), url);
+    }
 }

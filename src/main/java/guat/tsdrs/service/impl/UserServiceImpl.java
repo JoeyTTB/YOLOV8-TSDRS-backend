@@ -8,6 +8,7 @@ import guat.tsdrs.pojo.dto.RegisterDTO;
 import guat.tsdrs.pojo.dto.UserLoginDTO;
 import guat.tsdrs.pojo.vo.LoginUser;
 import guat.tsdrs.service.UserService;
+import guat.tsdrs.utils.AliOSSUtils;
 import guat.tsdrs.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +47,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private AliOSSUtils aliOSSUtils;
 
     @Override
     public String login(UserLoginDTO userLoginDTO) {
@@ -74,7 +83,14 @@ public class UserServiceImpl implements UserService {
         }
         User user = userMapper.getUserByName(registerDTO.getUsername());
         if(Objects.isNull(user)) {
-            user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()));
+            LocalDate currentDate = LocalDate.now();
+
+            // 定义格式化模式
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+            // 将日期格式化为指定格式
+            String formattedDate = currentDate.format(formatter);
+            user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()), formattedDate);
             userMapper.insertUser(user);
             return ResultEnum.REGISTER_SUCCESS.getCode();
         } else {
@@ -85,5 +101,32 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(String username) {
         redisTemplate.delete(username);
+    }
+
+    @Override
+    public String getRegDate(String username) {
+        return userMapper.getRegDate(username);
+    }
+
+    @Override
+    public String uploadAvatar(String username, MultipartFile file) {
+        String url = "";
+        try {
+            url = aliOSSUtils.upload(file);
+            if(url.isEmpty()) {
+                throw new IOException("头像文件上传失败");
+            } else {
+                log.info("头像文件上传成功");
+                userMapper.uploadAvatar(username, url);
+            }
+            return url;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String getAvatar(String username) {
+        return userMapper.getAvatar(username);
     }
 }
