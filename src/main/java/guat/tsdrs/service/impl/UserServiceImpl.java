@@ -10,6 +10,7 @@ import guat.tsdrs.pojo.vo.LoginUser;
 import guat.tsdrs.service.UserService;
 import guat.tsdrs.utils.AliOSSUtils;
 import guat.tsdrs.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -99,8 +100,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void logout(String username) {
-        redisTemplate.delete(username);
+    public boolean logout(String token) {
+        try {
+            Claims claims = JwtUtils.parseJwt(token);
+            String subject = claims.getSubject();
+            LoginUser loginUser = JSON.parseObject(subject, LoginUser.class);
+            redisTemplate.delete(loginUser.getUsername());
+            return true;
+        } catch (Exception e) {
+            log.error("登出失败，认证已过期:{}", e.getMessage());
+            return false;
+        }
     }
 
     @Override

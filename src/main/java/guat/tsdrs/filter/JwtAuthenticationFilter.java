@@ -15,15 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import javax.naming.AuthenticationException;
-import javax.naming.InsufficientResourcesException;
 import java.io.IOException;
 
 @Slf4j
@@ -31,14 +26,14 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String uri = request.getRequestURI();
             System.out.println("request uri: " + uri);
-            if(!(uri.equals("/account/login") || uri.equals("/account/register"))) {
+            if(!(uri.equals("/account/login") || uri.equals("/account/register") || uri.startsWith("/account/logout"))) {
                 this.validateToken(request);
             }
         } catch (CustomAuthenticationException e) {

@@ -41,10 +41,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/logout/{username}")
-    public Result logout(@PathVariable String username) {
-        userService.logout(username);
-        return Result.success(ResultEnum.USER_LOGOUT_SUCCESS.getCode(), ResultEnum.USER_LOGOUT_SUCCESS.getMsg());
+    @GetMapping("/logout")
+    public Result logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        boolean result = userService.logout(token);
+        return result ? Result.success(ResultEnum.USER_LOGOUT_SUCCESS.getCode(), ResultEnum.USER_LOGOUT_SUCCESS.getMsg())
+                : Result.error(ResultEnum.USER_NEED_AUTH.getCode(), ResultEnum.USER_NEED_AUTH.getMsg());
     }
 
     @GetMapping("/check/{username}")

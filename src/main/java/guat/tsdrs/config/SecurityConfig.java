@@ -73,13 +73,11 @@ public class SecurityConfig {
         //关闭会话
         http.sessionManagement(configuration -> configuration.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(anonymousAuthenticationHandler));
-        http.authorizeHttpRequests(auth -> auth.requestMatchers("account/login", "account/register")
+        http.authorizeHttpRequests(auth -> auth.requestMatchers("/account/login", "/account/register", "/account/logout/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated());
         http.cors(Customizer.withDefaults());//开启跨域访问
         return http.build();
     }
-
-
 }

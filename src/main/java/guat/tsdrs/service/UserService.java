@@ -10,7 +10,7 @@ public interface UserService {
 
     public Integer register(RegisterDTO registerDTO);
 
-    public void logout(String username);
+    public boolean logout(String token);
 
     public String getRegDate(String username);
 
